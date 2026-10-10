@@ -1,0 +1,1 @@
+Headless integration checks run in `tests/smoke/run_tests.gd`: bootstrap loading, service composition, local storage roundtrip/replacement/corruption. Native Android runtime and Play transactions require device/Play Console tests; compilation is separate evidence.

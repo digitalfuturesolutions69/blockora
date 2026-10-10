@@ -1,0 +1,23 @@
+plugins { id 'com.android.library' version '8.10.1' }
+
+android {
+    namespace 'com.digitalfuturesolutions.blockora.platform'
+    compileSdk 36
+    buildToolsVersion '36.1.0'
+    defaultConfig { minSdk 26; targetSdk 36 }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    buildTypes { debug { minifyEnabled false }; release { minifyEnabled false } }
+}
+
+dependencies {
+    compileOnly files('../../build/libs/debug/godot-lib.template_debug.aar')
+    implementation 'com.google.android.gms:play-services-ads:25.5.0'
+    implementation 'com.android.billingclient:billing:9.1.0'
+}
+
+dependencyLocking { lockAllConfigurations() }
+
+tasks.withType(JavaCompile).configureEach { options.compilerArgs += ['-Xlint:deprecation'] }

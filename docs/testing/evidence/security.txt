@@ -1,0 +1,1 @@
+PASS: 77 Git candidate files scanned; no common credentials or signing files detected (limited pattern scan)

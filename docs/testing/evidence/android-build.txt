@@ -1,0 +1,105 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build
+
+> Configure project :
+Unable to initialize metrics, ensure /home/agent/.android is writable, details: /home/agent/.android/analytics.settings (Read-only file system)
+
+> Task :preBuild UP-TO-DATE
+> Task :preDebugBuild UP-TO-DATE
+> Task :mergeDebugJniLibFolders
+> Task :mergeDebugNativeLibs NO-SOURCE
+> Task :stripDebugDebugSymbols NO-SOURCE
+> Task :generateDebugResValues
+> Task :copyDebugJniLibsProjectAndLocalJars
+> Task :generateDebugResources
+> Task :packageDebugResources
+> Task :extractDeepLinksForAarDebug
+> Task :mergeDebugShaders
+> Task :compileDebugShaders NO-SOURCE
+> Task :generateDebugAssets UP-TO-DATE
+> Task :mergeDebugAssets
+> Task :javaPreCompileDebug
+> Task :prepareDebugArtProfile
+> Task :prepareLintJarForPublish
+> Task :parseDebugLocalResources
+> Task :generateDebugRFile
+
+> Task :processDebugManifest
+/workspace/blockora/android/plugins/blockora-platform/src/main/AndroidManifest.xml:7:5-99 Warning:
+	uses-permission#com.google.android.gms.permission.AD_ID was tagged at AndroidManifest.xml:7 to remove other declarations but no other declaration present
+/workspace/blockora/android/plugins/blockora-platform/src/main/AndroidManifest.xml:8:5-84 Warning:
+	uses-permission#android.permission.AD_ID was tagged at AndroidManifest.xml:8 to remove other declarations but no other declaration present
+/workspace/blockora/android/plugins/blockora-platform/src/main/AndroidManifest.xml:9:5-102 Warning:
+	uses-permission#android.permission.ACCESS_ADSERVICES_AD_ID was tagged at AndroidManifest.xml:9 to remove other declarations but no other declaration present
+/workspace/blockora/android/plugins/blockora-platform/src/main/AndroidManifest.xml:10:5-108 Warning:
+	uses-permission#android.permission.ACCESS_ADSERVICES_ATTRIBUTION was tagged at AndroidManifest.xml:10 to remove other declarations but no other declaration present
+/workspace/blockora/android/plugins/blockora-platform/src/main/AndroidManifest.xml:11:5-103 Warning:
+	uses-permission#android.permission.ACCESS_ADSERVICES_TOPICS was tagged at AndroidManifest.xml:11 to remove other declarations but no other declaration present
+/workspace/blockora/android/plugins/blockora-platform/src/main/AndroidManifest.xml:12:5-101 Warning:
+	uses-permission#android.permission.ACCESS_COARSE_LOCATION was tagged at AndroidManifest.xml:12 to remove other declarations but no other declaration present
+/workspace/blockora/android/plugins/blockora-platform/src/main/AndroidManifest.xml:13:5-99 Warning:
+	uses-permission#android.permission.ACCESS_FINE_LOCATION was tagged at AndroidManifest.xml:13 to remove other declarations but no other declaration present
+/workspace/blockora/android/plugins/blockora-platform/src/main/AndroidManifest.xml:14:5-97 Warning:
+	uses-permission#android.permission.FOREGROUND_SERVICE was tagged at AndroidManifest.xml:14 to remove other declarations but no other declaration present
+/workspace/blockora/android/plugins/blockora-platform/src/main/AndroidManifest.xml:16:9-109 Warning:
+	service#androidx.work.impl.foreground.SystemForegroundService was tagged at AndroidManifest.xml:16 to remove other declarations but no other declaration present
+
+> Task :extractDebugAnnotations
+> Task :compileDebugJavaWithJavac
+> Task :mergeDebugGeneratedProguardFiles
+> Task :mergeDebugConsumerProguardFiles
+> Task :processDebugJavaRes NO-SOURCE
+> Task :writeDebugAarMetadata
+> Task :mergeDebugJavaResource
+> Task :syncDebugLibJars
+> Task :bundleDebugAar
+> Task :assembleDebug
+
+BUILD SUCCESSFUL in 31s
+22 actionable tasks: 22 executed
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+[   0% ] first_scan_filesystem | Started Project initialization (5 steps)
+[   0% ] first_scan_filesystem | Scanning file structure...
+[  16% ] first_scan_filesystem | Loading global class names...
+[  33% ] first_scan_filesystem | Verifying GDExtensions...
+[  50% ] first_scan_filesystem | Creating autoload scripts...
+[  66% ] first_scan_filesystem | Initializing plugins...
+[  83% ] first_scan_filesystem | Starting file scan...
+[ DONE ] first_scan_filesystem
+
+[   0% ] export | Started Exporting for Android (105 steps)
+0 param: --xr_mode_regular
+1 param: --xr-mode
+2 param: off
+3 param: --fullscreen
+4 param: --background_color
+5 param: #000000
+[ DONE ] export
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+[   0% ] first_scan_filesystem | Started Project initialization (5 steps)
+[   0% ] first_scan_filesystem | Scanning file structure...
+[  16% ] first_scan_filesystem | Loading global class names...
+[  33% ] first_scan_filesystem | Verifying GDExtensions...
+[  50% ] first_scan_filesystem | Creating autoload scripts...
+[  66% ] first_scan_filesystem | Initializing plugins...
+[  83% ] first_scan_filesystem | Starting file scan...
+[ DONE ] first_scan_filesystem
+
+[   0% ] export | Started Exporting for Android (105 steps)
+0 param: --xr_mode_regular
+1 param: --xr-mode
+2 param: off
+3 param: --fullscreen
+4 param: --background_color
+5 param: #000000
+[ DONE ] export
+
+cannot connect to daemon at tcp:5037: Connection refused
+builds/blockora-debug.apk: size=84900189, sha256=05b7ba354b4bb55fc2fcf96f0b1fbf9d76417b84772848fb067095368dbc1bdc
+builds/blockora-test.aab: size=32445530, sha256=9104d9b8d657140209ee7086f1b3c27c234d73397c35beea164e54b49aac57e5
+PASS: APK package, SDKs, permission allowlist, debug signature
+PASS: bundletool validation, AAB SDKs, portrait, permissions, v2 plugin and test AdMob ID
+Permissions: android.permission.ACCESS_NETWORK_STATE, android.permission.INTERNET, android.permission.WAKE_LOCK, com.android.vending.BILLING, com.digitalfuturesolutions.blockora.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION

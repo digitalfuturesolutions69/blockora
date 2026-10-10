@@ -1,0 +1,22 @@
+config_version=5
+
+[application]
+config/name="Blockora"
+config/icon="res://assets/icon.svg"
+config/version="0.0.1-phase0b"
+run/main_scene="res://scenes/bootstrap/bootstrap.tscn"
+
+[display]
+window/size/viewport_width=720
+window/size/viewport_height=1280
+window/stretch/mode="canvas_items"
+window/handheld/orientation=1
+
+[rendering]
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/vram_compression/import_etc2_astc=true
+environment/defaults/default_clear_color=Color(0.06, 0.09, 0.14, 1)
+
+[editor_plugins]
+enabled=PackedStringArray("res://addons/blockora_platform/plugin.cfg")

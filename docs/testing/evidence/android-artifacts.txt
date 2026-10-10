@@ -1,0 +1,5 @@
+builds/blockora-debug.apk: size=84900189, sha256=05b7ba354b4bb55fc2fcf96f0b1fbf9d76417b84772848fb067095368dbc1bdc
+builds/blockora-test.aab: size=32445530, sha256=9104d9b8d657140209ee7086f1b3c27c234d73397c35beea164e54b49aac57e5
+PASS: APK package, SDKs, permission allowlist, debug signature
+PASS: bundletool validation, AAB SDKs, portrait, permissions, v2 plugin and test AdMob ID
+Permissions: android.permission.ACCESS_NETWORK_STATE, android.permission.INTERNET, android.permission.WAKE_LOCK, com.android.vending.BILLING, com.digitalfuturesolutions.blockora.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
