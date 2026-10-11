@@ -47,7 +47,9 @@ func _ready() -> void:
 	_sound_player.stream = _make_sound()
 	_sound_player.volume_db = -18
 	add_child(_sound_player)
-	controller.changed.connect(_refresh)
+	# A synthesized GUI click is dispatched before its original touch event.
+	# Keep controls attached until this input dispatch has finished.
+	controller.changed.connect(_refresh, CONNECT_DEFERRED)
 	controller.move_completed.connect(_move_feedback)
 	resized.connect(_safe_margins)
 	get_window().size_changed.connect(_safe_margins)
@@ -139,7 +141,7 @@ func _show_home() -> void:
 	_button("Play Classic", _request_new, true)
 	if controller.can_resume():
 		_button("Resume Game", func() -> void: controller.resume())
-	_button("Settings", func() -> void: _settings_open = true; _refresh())
+	_button("Settings", func() -> void: _settings_open = true; _refresh.call_deferred())
 	_button("Relax Mode  ·  Coming Soon", func() -> void: pass).disabled = true
 	_button("Daily Challenge  ·  Coming Soon", func() -> void: pass).disabled = true
 	_space()
@@ -188,7 +190,7 @@ func _show_settings() -> void:
 	var preferences := controller.preferences()
 	_button("Sound  ·  " + ("On" if preferences.sound else "Off"), func() -> void: controller.set_preferences(not controller.preferences().sound, controller.preferences().vibration))
 	_button("Vibration  ·  " + ("On" if preferences.vibration else "Off"), func() -> void: controller.set_preferences(controller.preferences().sound, not controller.preferences().vibration))
-	_button("Back", func() -> void: _settings_open = false; _refresh(), true)
+	_button("Back", func() -> void: _settings_open = false; _refresh.call_deferred(), true)
 	_space()
 
 func _request_new() -> void:

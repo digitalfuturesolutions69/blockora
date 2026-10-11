@@ -3,6 +3,9 @@ extends Control
 
 signal placement_requested(slot: int, origin: Vector2i)
 const COLORS := {"mint": Color("71e2bf"), "gold": Color("ffd083"), "blue": Color("82bbff"), "rose": Color("f39da9"), "lavender": Color("b5a0ef")}
+# Godot InputEvent::DEVICE_ID_EMULATION (core/input/input_event.h).
+# GUI buttons need these events; gameplay consumes the original touch only.
+const EMULATED_MOUSE_DEVICE := -1
 const IDLE := -2
 var _board := PuzzleBoard.new()
 var _pieces: Array[GamePiece] = []
@@ -78,6 +81,8 @@ func _local_pointer(position: Vector2) -> Vector2:
 	return get_global_transform_with_canvas().affine_inverse() * position
 
 func _input(event: InputEvent) -> void:
+	if (event is InputEventMouseButton or event is InputEventMouseMotion) and event.device == EMULATED_MOUSE_DEVICE:
+		return
 	if not _active or not is_visible_in_tree():
 		return
 	if event is InputEventScreenTouch:
@@ -91,7 +96,7 @@ func _input(event: InputEvent) -> void:
 		if event.pressed:
 			_begin(_local_pointer(event.position), -1)
 		elif _pointer_id == -1:
-			_finish(_local_pointer(event.position), false)
+			_finish(_local_pointer(event.position), event.canceled)
 	elif event is InputEventMouseMotion and _pointer_id == -1:
 		_move(_local_pointer(event.position))
 

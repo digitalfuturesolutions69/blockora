@@ -7,8 +7,50 @@ var failures := 0
 var app: ClassicApp
 var storage: LocalStorageService
 var path: String
+var moves := [0]
+
+class EventObserver extends Node:
+	var emulated_buttons := 0
+	func _input(event: InputEvent) -> void:
+		if event is InputEventMouseButton and event.device == -1:
+			emulated_buttons += 1
+
+func _tap_button(button: Button, mouse: bool = false) -> void:
+	if button == null:
+		check(false, "GUI button exists")
+		return
+	var presses := [0]
+	button.pressed.connect(func() -> void: presses[0] += 1)
+	var position := button.get_global_transform_with_canvas() * (button.size / 2.0)
+	if button.get_window() != root:
+		position += Vector2(button.get_window().position)
+	position = root.get_final_transform() * position
+	if mouse:
+		_mouse(position, true)
+	else:
+		_touch(position, 0, true)
+	await settle()
+	check(presses[0] == 0, "button waits for release")
+	if mouse:
+		_mouse(position, false)
+	else:
+		_touch(position, 0, false)
+	await settle()
+	check(presses[0] == 1, "one input gesture emits exactly one button action")
+
+func _tap(text: String, mouse: bool = false) -> void:
+	var target: Button
+	for button in app._content.find_children("*", "Button", true, false):
+		if button.text.begins_with(text):
+			target = button
+			break
+	await _tap_button(target, mouse)
 
 func _initialize() -> void:
+	# A failed navigation assertion must not leave CI hanging after a null UI.
+	create_timer(30.0).timeout.connect(func() -> void:
+		push_error("Input integration timed out")
+		quit(1))
 	_run.call_deferred()
 
 func check(condition: bool, label: String) -> void:
@@ -53,13 +95,17 @@ func global_point(local: Vector2) -> Vector2:
 
 func _run() -> void:
 	root.size = Vector2i(720, 1280)
+	root.gui_embed_subwindows = true
 	path = "user://phase1_input_" + str(Time.get_ticks_usec())
 	storage = Storage.new(path)
 	app = ClassicApp.new()
 	app.configure(storage)
 	root.add_child(app)
 	await settle()
+	var observer := EventObserver.new()
+	root.add_child(observer)
 	cases += 1
+	check(Input.is_emulating_mouse_from_touch(), "production touch-to-mouse setting enabled")
 	check(app.controller.state() == SessionStateMachine.State.HOME, "Home visible")
 	var coming_soon := 0
 	for button in app._content.find_children("*", "Button", true, false):
@@ -67,6 +113,21 @@ func _run() -> void:
 			coming_soon += 1
 			check(button.disabled, "Coming Soon disabled")
 	check(coming_soon == 2, "two Coming Soon controls")
+	cases += 1
+	await _tap("Settings")
+	check(app._settings_open, "touch opens Settings")
+	await _tap("Sound")
+	check(not app.controller.preferences().sound, "touch toggles sound once")
+	await _tap("Vibration")
+	check(not app.controller.preferences().vibration, "touch toggles vibration once")
+	await _tap("Back")
+	check(not app._settings_open and app.controller.state() == SessionStateMachine.State.HOME, "touch Back returns Home")
+	cases += 1
+	await _tap("Play Classic")
+	check(app.controller.state() == SessionStateMachine.State.PLAYING and app.surface != null, "touch Play Classic opens gameplay")
+	check(not app._dialog.visible, "single tap does not reopen restart dialog")
+	check(observer.emulated_buttons >= 10, "Godot synthesized mouse events from real touch injection")
+	app.controller.move_completed.connect(func(_result: Dictionary) -> void: moves[0] += 1)
 	app.controller.new_game(42)
 	await settle()
 	cases += 1
@@ -107,7 +168,14 @@ func _run() -> void:
 	cases += 1
 	_touch(global_point(surface.tray_rect(1).get_center()), 0, true)
 	await settle()
-	check(surface.is_dragging(), "touch selects")
+	check(surface.is_dragging() and surface._pointer_id == 0, "original touch owns drag, not its preceding synthesized mouse")
+	var initial_origin := surface.drag_origin()
+	var synthetic_motion := InputEventMouseMotion.new()
+	synthetic_motion.device = PuzzleSurface.EMULATED_MOUSE_DEVICE
+	synthetic_motion.position = Vector2.ZERO
+	Input.parse_input_event(synthetic_motion)
+	await settle()
+	check(surface.drag_origin() == initial_origin, "synthetic mouse motion cannot move a touch-owned drag")
 	target = global_point(surface.pointer_for_origin(1, Vector2i(0, 4)))
 	_move(target, 0)
 	await settle()
@@ -119,16 +187,42 @@ func _run() -> void:
 	await settle()
 	check(not surface.is_dragging() and app.controller.session().snapshot() == before, "OS touch cancellation atomic")
 	cases += 1
+	var previous_moves: int = moves[0]
 	_touch(global_point(surface.tray_rect(1).get_center()), 0, true)
 	await settle()
 	_move(target, 0)
 	await settle()
 	_touch(target, 0, false)
 	await settle()
+	check(moves[0] == previous_moves + 1, "touch plus automatic mouse emulation commits exactly one move")
 	check(app.controller.session().piece_at(1) == null and app.controller.session().score() > int(before.score), "touch commits through actual event interface")
 	cases += 1
 	surface = app.surface
 	before = app.controller.session().snapshot()
+	# A collision must also be atomic with both touch and emulated mouse enabled.
+	_touch(global_point(surface.tray_rect(2).get_center()), 0, true)
+	await settle()
+	var invalid_target := global_point(surface.pointer_for_origin(2, Vector2i.ZERO))
+	_move(invalid_target, 0)
+	await settle()
+	check(not surface.preview_valid(), "touch collision is invalid")
+	_touch(invalid_target, 0, false)
+	await settle()
+	check(app.controller.session().snapshot() == before and moves[0] == previous_moves + 1, "invalid touch release changes no state or score")
+	var synthetic_press := InputEventMouseButton.new()
+	synthetic_press.device = PuzzleSurface.EMULATED_MOUSE_DEVICE
+	synthetic_press.button_index = MOUSE_BUTTON_LEFT
+	synthetic_press.position = global_point(surface.tray_rect(2).get_center())
+	synthetic_press.pressed = true
+	Input.parse_input_event(synthetic_press)
+	await settle()
+	check(not surface.is_dragging(), "synthetic mouse cannot start a second drag on refreshed surface")
+	synthetic_press.pressed = false
+	Input.parse_input_event(synthetic_press)
+	_touch(target, 0, false)
+	await settle()
+	check(app.controller.session().snapshot() == before and moves[0] == previous_moves + 1, "stale paired releases cannot duplicate score or placement")
+	cases += 1
 	_touch(global_point(surface.tray_rect(2).get_center()), 0, true)
 	await settle()
 	check(surface.is_dragging(), "drag before interruption")
@@ -145,17 +239,12 @@ func _run() -> void:
 	cases += 1
 	app.controller.pause()
 	await settle()
-	for button in app._content.find_children("*", "Button", true, false):
-		if button.text == "Restart":
-			button.pressed.emit()
-	await settle()
+	await _tap("Restart")
 	check(app._dialog.visible and app.controller.session().snapshot() == before, "restart requires confirmation")
-	app._dialog.canceled.emit()
-	app._dialog.hide()
+	await _tap_button(app._dialog.get_cancel_button())
 	check(app.controller.session().snapshot() == before, "declined restart unchanged")
-	app._dialog.confirmed.emit()
-	app._dialog.hide()
-	await settle()
+	await _tap("Restart")
+	await _tap_button(app._dialog.get_ok_button())
 	check(app.controller.state() == SessionStateMachine.State.PLAYING and app.controller.session().score() == 0, "confirmed restart")
 	cases += 1
 	surface = app.surface
@@ -175,22 +264,23 @@ func _run() -> void:
 	cases += 1
 	app.controller.home()
 	await settle()
-	for button in app._content.find_children("*", "Button", true, false):
-		if button.text == "Settings":
-			button.pressed.emit()
+	await _tap("Settings", true)
+	check(app._settings_open, "desktop mouse opens settings")
+	await _tap("Sound", true)
+	check(app.controller.preferences().sound, "mouse toggles sound back on")
+	check(ClassicController.new(storage).preferences().sound, "sound preference persists")
+	await _tap("Vibration", true)
+	check(app.controller.preferences().vibration and ClassicController.new(storage).preferences().vibration, "mouse vibration preference persists")
+	app.notification(Node.NOTIFICATION_WM_GO_BACK_REQUEST)
 	await settle()
-	check(app._settings_open, "settings screen")
-	for button in app._content.find_children("*", "Button", true, false):
-		if button.text.begins_with("Sound"):
-			button.pressed.emit()
+	check(not app._settings_open, "Android Back closes settings")
+	await _tap("Resume Game")
+	app.notification(Node.NOTIFICATION_WM_GO_BACK_REQUEST)
 	await settle()
-	check(not app.controller.preferences().sound, "sound preference toggles")
-	check(not ClassicController.new(storage).preferences().sound, "sound preference persists")
-	for button in app._content.find_children("*", "Button", true, false):
-		if button.text.begins_with("Vibration"):
-			button.pressed.emit()
+	check(app.controller.state() == SessionStateMachine.State.PAUSED, "Android Back pauses gameplay")
+	app.notification(Node.NOTIFICATION_WM_GO_BACK_REQUEST)
 	await settle()
-	check(not app.controller.preferences().vibration and not ClassicController.new(storage).preferences().vibration, "vibration preference persists")
+	check(app.controller.state() == SessionStateMachine.State.HOME, "Android Back returns Home from pause")
 	cases += 1
 	app.queue_free()
 	await settle()
@@ -213,10 +303,13 @@ func _run() -> void:
 			replay_button = button
 	check(replay_button != null, "play again control exists")
 	if replay_button != null:
-		replay_button.pressed.emit()
+		await _tap_button(replay_button)
 	await settle()
 	check(app.controller.state() == SessionStateMachine.State.PLAYING and app.controller.session().score() == 0, "play again works")
+	# Let the short original tone finish before the dummy audio server exits.
+	await create_timer(0.2).timeout
 	app.queue_free()
+	observer.queue_free()
 	await settle()
 	for key in [ClassicController.SAVE_KEY, ClassicController.BEST_KEY, ClassicController.SETTINGS_KEY]:
 		DirAccess.remove_absolute(path.path_join(key + ".json"))
