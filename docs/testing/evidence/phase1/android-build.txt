@@ -1,0 +1,86 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build
+
+> Configure project :
+Unable to initialize metrics, ensure /home/agent/.android is writable, details: /home/agent/.android/analytics.settings (Read-only file system)
+
+> Task :preBuild UP-TO-DATE
+> Task :preDebugBuild UP-TO-DATE
+> Task :mergeDebugJniLibFolders UP-TO-DATE
+> Task :mergeDebugNativeLibs NO-SOURCE
+> Task :stripDebugDebugSymbols NO-SOURCE
+> Task :copyDebugJniLibsProjectAndLocalJars UP-TO-DATE
+> Task :generateDebugResValues UP-TO-DATE
+> Task :generateDebugResources UP-TO-DATE
+> Task :packageDebugResources UP-TO-DATE
+> Task :parseDebugLocalResources UP-TO-DATE
+> Task :generateDebugRFile UP-TO-DATE
+> Task :extractDebugAnnotations UP-TO-DATE
+> Task :extractDeepLinksForAarDebug UP-TO-DATE
+> Task :mergeDebugShaders UP-TO-DATE
+> Task :compileDebugShaders NO-SOURCE
+> Task :generateDebugAssets UP-TO-DATE
+> Task :mergeDebugAssets UP-TO-DATE
+> Task :javaPreCompileDebug UP-TO-DATE
+> Task :compileDebugJavaWithJavac UP-TO-DATE
+> Task :mergeDebugGeneratedProguardFiles UP-TO-DATE
+> Task :mergeDebugConsumerProguardFiles UP-TO-DATE
+> Task :prepareDebugArtProfile UP-TO-DATE
+> Task :prepareLintJarForPublish UP-TO-DATE
+> Task :processDebugManifest UP-TO-DATE
+> Task :processDebugJavaRes NO-SOURCE
+> Task :mergeDebugJavaResource UP-TO-DATE
+> Task :syncDebugLibJars UP-TO-DATE
+> Task :writeDebugAarMetadata UP-TO-DATE
+> Task :bundleDebugAar UP-TO-DATE
+> Task :assembleDebug UP-TO-DATE
+
+BUILD SUCCESSFUL in 6s
+22 actionable tasks: 22 up-to-date
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+[   0% ] first_scan_filesystem | Started Project initialization (5 steps)
+[   0% ] first_scan_filesystem | Scanning file structure...
+[  16% ] first_scan_filesystem | Loading global class names...
+[  33% ] first_scan_filesystem | Verifying GDExtensions...
+[  50% ] first_scan_filesystem | Creating autoload scripts...
+[  66% ] first_scan_filesystem | Initializing plugins...
+[  83% ] first_scan_filesystem | Starting file scan...
+[ DONE ] first_scan_filesystem
+
+[   0% ] export | Started Exporting for Android (105 steps)
+0 param: --xr_mode_regular
+1 param: --xr-mode
+2 param: off
+3 param: --fullscreen
+4 param: --background_color
+5 param: #000000
+[ DONE ] export
+
+cannot connect to daemon at tcp:5037: Connection refused
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+[   0% ] first_scan_filesystem | Started Project initialization (5 steps)
+[   0% ] first_scan_filesystem | Scanning file structure...
+[  16% ] first_scan_filesystem | Loading global class names...
+[  33% ] first_scan_filesystem | Verifying GDExtensions...
+[  50% ] first_scan_filesystem | Creating autoload scripts...
+[  66% ] first_scan_filesystem | Initializing plugins...
+[  83% ] first_scan_filesystem | Starting file scan...
+[ DONE ] first_scan_filesystem
+
+[   0% ] export | Started Exporting for Android (105 steps)
+0 param: --xr_mode_regular
+1 param: --xr-mode
+2 param: off
+3 param: --fullscreen
+4 param: --background_color
+5 param: #000000
+[ DONE ] export
+
+cannot connect to daemon at tcp:5037: Connection refused
+builds/blockora-debug.apk: size=84937476, sha256=25f932841f58803cc26a72236fb507de6847fbeb70f66c5df23de13074c9bcbf
+builds/blockora-test.aab: size=32484355, sha256=e88a95bdb6d65a586e86f94e06465d833b27bac1548df2c51bfcdfef9878040c
+PASS: APK package, SDKs, permission allowlist, debug signature
+PASS: bundletool validation, AAB SDKs, portrait, permissions, v2 plugin and test AdMob ID
+Permissions: android.permission.ACCESS_NETWORK_STATE, android.permission.INTERNET, android.permission.VIBRATE, android.permission.WAKE_LOCK, com.android.vending.BILLING, com.digitalfuturesolutions.blockora.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION

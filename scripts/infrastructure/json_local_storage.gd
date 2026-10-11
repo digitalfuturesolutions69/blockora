@@ -33,6 +33,9 @@ func read_record(key: String) -> Dictionary:
 	var file := FileAccess.open(_root.path_join(key + ".json"), FileAccess.READ)
 	if file == null:
 		return {"status": "missing", "data": {}}
+	if file.get_length() > 1048576:
+		file.close()
+		return {"status": "corrupt", "data": {}}
 	var parser := JSON.new()
 	var parse_error := parser.parse(file.get_as_text())
 	file.close()

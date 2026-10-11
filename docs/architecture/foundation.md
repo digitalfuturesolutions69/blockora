@@ -1,10 +1,10 @@
 # Foundation architecture
 
-`scenes/bootstrap` hosts the minimal startup screen and composes services without initializing advertising or billing. `scripts/domain` is intentionally empty: no gameplay, scoring, generator, or premium-sensitive difficulty code exists.
+`scenes/bootstrap` preserves service composition without initializing advertising/billing. Phase 1 injects storage into playable Classic; [core gameplay](core-gameplay.md) defines board, scoring, generation, saves, and UI. Monetization data stays outside domain.
 
 `platform/interfaces` defines Advertising, Billing, Analytics, Crash Reporting, and Local Storage contracts. No-op implementations return unavailable/false, never a fake ad reward or permanent entitlement. `platform_services.gd` owns composition: default bootstrap uses no-ops, while an explicit Android feasibility selection can use the native bridge only when its singleton exists.
 
-`infrastructure/json_local_storage.gd` writes a same-directory temporary JSON file, flushes/closes it, and renames it over the committed record. Keys must be identifiers to prevent traversal. Missing/corrupt records return structured errors. This is a storage smoke foundation, not the future versioned gameplay save/migration/backup implementation; concurrent writers and power-loss durability are not guaranteed in this phase.
+`infrastructure/json_local_storage.gd` uses identifier keys, same-directory temporary write/flush/rename, and structured errors. Phase 1 adds bounded reads and versioned gameplay validation above it. Backups/migrations, concurrent writers, and power-loss durability remain unsupported.
 
 `platform/android` wraps the small native bridge. No monetization object, token, analytics identifier, or SDK type enters domain code. No external SDK failure can grant entitlement. Native events contain only service/status codes; purchase tokens stay in native memory and are cleared on disconnect/destruction and refreshed queries.
 

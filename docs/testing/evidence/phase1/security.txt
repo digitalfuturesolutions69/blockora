@@ -1,0 +1,9 @@
+PASS: 125 Git candidate files scanned; no common credentials or signing files detected (limited pattern scan)
+PASS: file-content/extension review found no committed binary/signing artifacts.
+PASS: native Java, platform adapters, Gradle dependencies and lockfile unchanged.
+PASS: actionlint 1.7.7 static workflow validation (shellcheck disabled); bash -n passed.
+PASS: git diff --check and git diff --cached --check.
+PASS: final exports exclude generated build/test/documentation evidence resources.
+Permission delta: only android.permission.VIBRATE, for approved local haptics.
+Production credentials/keys/publishing: unchanged; no push.
+Secret scan is limited-pattern, not exhaustive certification.

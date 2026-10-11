@@ -1,0 +1,13 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+SIMULATION progress: 1000/10000 sessions, 26483 moves
+SIMULATION progress: 2000/10000 sessions, 52608 moves
+SIMULATION progress: 3000/10000 sessions, 78985 moves
+SIMULATION progress: 4000/10000 sessions, 105072 moves
+SIMULATION progress: 5000/10000 sessions, 131080 moves
+SIMULATION progress: 6000/10000 sessions, 156389 moves
+SIMULATION progress: 7000/10000 sessions, 182694 moves
+SIMULATION progress: 8000/10000 sessions, 208542 moves
+SIMULATION progress: 9000/10000 sessions, 234123 moves
+SIMULATION progress: 10000/10000 sessions, 260575 moves
+SIMULATION RESULT: 10000 completed sessions, 260575 moves, 2357854 assertions, 0 failures, 24347 ms, longest=106 moves

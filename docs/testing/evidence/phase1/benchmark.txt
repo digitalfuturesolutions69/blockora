@@ -1,0 +1,3 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+BENCHMARK: 200000 placement probes=145686 us; 10000 deserialize+cross-clear=88135 us; accepted=100000; cleared=150000 (cloud CPU; not Android FPS)

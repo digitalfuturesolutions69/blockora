@@ -16,6 +16,8 @@ ALLOWED_PERMISSIONS = {
     'com.android.vending.BILLING',
     # Required by Google SDK transport/WorkManager background jobs.
     'android.permission.WAKE_LOCK',
+    # Phase 1 user-controlled, local placement haptic feedback; no runtime prompt.
+    'android.permission.VIBRATE',
     # AGP/AndroidX-generated signature-level self permission; no runtime prompt.
     'com.digitalfuturesolutions.blockora.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION',
 }
@@ -33,6 +35,7 @@ for archive in (apk, aab):
     check(archive.exists() and archive.stat().st_size > 0, f'{archive} exists')
     with zipfile.ZipFile(archive) as z:
         check(z.testzip() is None, f'{archive} ZIP integrity')
+        check(not any('/builds/' in n or '/tests/' in n or '/docs/' in n or any(marker in n for marker in ('home.png-', 'classic.png-', 'preview.png-', 'game_over.png-')) for n in z.namelist()), f'{archive} excludes test/build evidence resources')
         dex_names = [n for n in z.namelist() if n.endswith('.dex')]
         dex = b''.join(z.read(n) for n in dex_names)
         for marker in (b'BlockoraPlatform', b'com/google/android/gms/ads', b'com/android/billingclient'):
@@ -49,6 +52,7 @@ check("sdkVersion:'26'" in badging, 'APK minimum SDK 26')
 check("targetSdkVersion:'36'" in badging, 'APK target SDK 36')
 permissions = set(re.findall(r"uses-permission: name='([^']+)'", badging))
 check(permissions <= ALLOWED_PERMISSIONS, 'APK unexpected permissions: ' + str(permissions - ALLOWED_PERMISSIONS))
+check('android.permission.VIBRATE' in permissions, 'APK haptics permission')
 run(str(TOOLS / 'apksigner'), 'verify', str(apk))
 print('PASS: APK package, SDKs, permission allowlist, debug signature')
 
@@ -66,6 +70,7 @@ activity = root.find('application/activity')
 check(activity is not None and activity.get(A + 'screenOrientation') in ('portrait', '1'), 'portrait activity')
 manifest_permissions = {p.get(A + 'name') for p in root.findall('uses-permission')}
 check(manifest_permissions <= ALLOWED_PERMISSIONS, 'AAB unexpected permissions: ' + str(manifest_permissions - ALLOWED_PERMISSIONS))
+check('android.permission.VIBRATE' in manifest_permissions, 'AAB haptics permission')
 metadata = {p.get(A + 'name'): p.get(A + 'value') for p in root.findall('application/meta-data')}
 check(metadata.get('org.godotengine.plugin.v2.BlockoraPlatform') == 'com.digitalfuturesolutions.blockora.platform.BlockoraPlatform', 'Godot v2 bridge metadata')
 check(metadata.get('com.google.android.gms.ads.APPLICATION_ID') == 'ca-app-pub-3940256099942544~3347511713', 'official Google test app ID')

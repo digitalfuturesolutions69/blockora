@@ -1,4 +1,4 @@
-name: Android foundation
+name: Android Classic validation
 on:
   push:
   pull_request:
@@ -18,12 +18,14 @@ jobs:
         run: bash tools/install_ci_toolchain.sh
       - name: Validate GDScript, behavior, and bootstrap
         run: bash tools/test.sh
+      - name: Run 10000 deterministic Classic sessions
+        run: bash tools/test_extended.sh
       - name: Compile platform spike and export test artifacts
         run: bash tools/build_android.sh
       - name: Upload test artifacts and effective manifest
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: blockora-phase0b-android
+          name: blockora-phase1-android
           path: |
             builds/blockora-debug.apk
             builds/blockora-test.aab

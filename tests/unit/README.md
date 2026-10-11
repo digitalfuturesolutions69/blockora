@@ -1,1 +1,1 @@
-Behavioral unit checks run in `tests/smoke/run_tests.gd`: no-op services and adapter forwarding/fallback. No third-party test framework is required in Phase 0B.
+Phase 0B remains in tests/smoke/run_tests.gd. Phase 1 board/pieces/scoring/RNG/tray/session/lifecycle/persistence tests use run_gameplay_tests.gd. Run bash tools/test.sh; no third-party framework. Extended oracle/replay properties use bash tools/test_extended.sh for 10,000 completed sessions.

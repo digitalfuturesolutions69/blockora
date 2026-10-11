@@ -1,0 +1,4 @@
+Command: source /workspace/toolchains/blockora-env.sh; adb devices
+List of devices attached
+
+No physical device attached. Android touchscreen/lifecycle/safe-area/audio/haptics acceptance BLOCKED.
