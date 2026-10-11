@@ -112,7 +112,11 @@ func _run() -> void:
 		if "Coming Soon" in button.text:
 			coming_soon += 1
 			check(button.disabled, "Coming Soon disabled")
-	check(coming_soon == 2, "two Coming Soon controls")
+	check(coming_soon == 1, "Daily remains Coming Soon; Relax is enabled")
+	var relax_enabled := false
+	for button in app._content.find_children("*", "Button", true, false):
+		if button.text == "Relax Mode": relax_enabled = not button.disabled
+	check(relax_enabled, "Relax mode entry enabled")
 	cases += 1
 	await _tap("Settings")
 	check(app._settings_open, "touch opens Settings")

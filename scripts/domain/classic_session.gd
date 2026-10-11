@@ -10,8 +10,10 @@ var _tray: Array[String] = []
 var _score := 0
 var _combo := 0
 var _finished := false
+var _ruleset := RULESET
 
-func _init(provider: PieceProvider = null, library: PieceLibrary = null, scoring: ScoreRules = null) -> void:
+func _init(provider: PieceProvider = null, library: PieceLibrary = null, scoring: ScoreRules = null, ruleset: String = RULESET) -> void:
+	_ruleset = ruleset
 	_library = library if library != null else PieceLibrary.new()
 	_provider = provider if provider != null else FairPieceProvider.new()
 	_scoring = scoring if scoring != null else ScoreRules.new()
@@ -79,7 +81,7 @@ func place(slot: int, origin: Vector2i) -> Dictionary:
 	return result
 
 func snapshot() -> Dictionary:
-	return {"schema_version": 1, "ruleset_version": RULESET, "board": _board.serialize(), "tray": _tray.duplicate(), "score": str(_score), "combo": _combo, "rng": _provider.snapshot(), "session_status": "game_over" if _finished else "active"}
+	return {"schema_version": 1, "ruleset_version": _ruleset, "board": _board.serialize(), "tray": _tray.duplicate(), "score": str(_score), "combo": _combo, "rng": _provider.snapshot(), "session_status": "game_over" if _finished else "active"}
 
 static func parse_score(value: Variant) -> int:
 	if not value is String or value.is_empty() or value.length() > 19:
@@ -94,7 +96,21 @@ static func parse_score(value: Variant) -> int:
 	return value.to_int()
 
 static func restore(value: Dictionary) -> ClassicSession:
-	if value.get("schema_version") != 1 or value.get("ruleset_version") != RULESET:
+	if not value.get("rng") is Dictionary:
+		return null
+	var provider: PieceProvider
+	if value.rng.has("policy"):
+		if value.rng.policy != FairPieceProvider.POLICY:
+			return null
+		provider = FairPieceProvider.new()
+	else:
+		provider = SeededPieceProvider.new()
+	return restore_configured(value, PieceLibrary.new(), provider, ScoreRules.new(), RULESET)
+
+# Mode policies explicitly supply their versioned catalog, scoring and provider.
+# Classic restore above retains its original save contract and defaults.
+static func restore_configured(value: Dictionary, library: PieceLibrary, provider: PieceProvider, scoring: ScoreRules, ruleset: String) -> ClassicSession:
+	if value.get("schema_version") != 1 or value.get("ruleset_version") != ruleset:
 		return null
 	var board_value := PuzzleBoard.deserialize(value.get("board"))
 	var score_value := parse_score(value.get("score"))
@@ -110,20 +126,12 @@ static func restore(value: Dictionary) -> ClassicSession:
 	# Committed sessions never contain completed lines or an entirely consumed tray.
 	if not board_value.completed_rows().is_empty() or not board_value.completed_columns().is_empty() or tray_value == ["", "", ""]:
 		return null
-	var library := PieceLibrary.new()
 	for id in tray_value:
 		if not id is String or (not id.is_empty() and library.get_piece(id) == null):
 			return null
-	var provider: PieceProvider
-	if value.rng.has("policy"):
-		if value.rng.policy != FairPieceProvider.POLICY:
-			return null
-		provider = FairPieceProvider.new()
-	else:
-		provider = SeededPieceProvider.new()
 	if not provider.restore(value.rng):
 		return null
-	var session := ClassicSession.new(provider, library)
+	var session := ClassicSession.new(provider, library, scoring, ruleset)
 	# Constructor generation is discarded; restore exact next-draw state afterwards.
 	provider.restore(value.rng)
 	session._board = board_value

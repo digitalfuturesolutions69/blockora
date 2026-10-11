@@ -1,0 +1,36 @@
+Modified (4):
+README.md
+scripts/domain/classic_session.gd
+scripts/presentation/classic_app.gd
+tests/integration/run_input_tests.gd
+
+New (29):
+docs/gameplay/relax-mode.md
+docs/testing/evidence/phase3/gate-b/changed-files.txt
+docs/testing/evidence/phase3/gate-b/classic-extended.txt
+docs/testing/evidence/phase3/gate-b/classic-regression.txt
+docs/testing/evidence/phase3/gate-b/parser.txt
+docs/testing/evidence/phase3/gate-b/process-recovery.txt
+docs/testing/evidence/phase3/gate-b/relax-tests.txt
+docs/testing/evidence/phase3/gate-b/security.txt
+docs/testing/phase-3-gate-b-verification.md
+scripts/application/relax_controller.gd
+scripts/application/relax_controller.gd.uid
+scripts/domain/relax_piece_library.gd
+scripts/domain/relax_piece_library.gd.uid
+scripts/domain/relax_policy.gd
+scripts/domain/relax_policy.gd.uid
+scripts/infrastructure/relax_session_store.gd
+scripts/infrastructure/relax_session_store.gd.uid
+tests/integration/relax_process_fixture.gd
+tests/integration/relax_process_fixture.gd.uid
+tests/integration/run_relax_input_tests.gd
+tests/integration/run_relax_input_tests.gd.uid
+tests/simulation/benchmark_relax.gd
+tests/simulation/benchmark_relax.gd.uid
+tests/simulation/run_relax_simulations.gd
+tests/simulation/run_relax_simulations.gd.uid
+tests/unit/run_relax_tests.gd
+tests/unit/run_relax_tests.gd.uid
+tools/test_relax.sh
+tools/test_relax_process.py

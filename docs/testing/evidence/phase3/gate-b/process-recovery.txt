@@ -1,0 +1,1 @@
+RELAX PROCESS RESULT: 1 SIGKILL checkpoint, 4 recovery checks, 0 failures; injected partial temp write

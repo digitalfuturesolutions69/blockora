@@ -3,8 +3,11 @@ extends Control
 
 const State = SessionStateMachine.State
 var controller: ClassicController
+var relax_controller: RelaxController
+var _relax_mode := false
 var surface: PuzzleSurface
 var _margin: MarginContainer
+var _scroll: ScrollContainer
 var _content: VBoxContainer
 var _settings_open := false
 var _dialog: ConfirmationDialog
@@ -13,6 +16,7 @@ var _message_label: Label
 
 func configure(storage: LocalStorageService) -> void:
 	controller = ClassicController.new(storage)
+	relax_controller = RelaxController.new(storage)
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -36,7 +40,11 @@ func _ready() -> void:
 	add_child(_margin)
 	_content = VBoxContainer.new()
 	_content.add_theme_constant_override("separation", 16)
-	_margin.add_child(_content)
+	_scroll = ScrollContainer.new()
+	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_margin.add_child(_scroll)
+	_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_scroll.add_child(_content)
 	_dialog = ConfirmationDialog.new()
 	_dialog.title = "Start a new game?"
 	_dialog.dialog_text = "Your current board will be replaced.\nYour best score will be kept."
@@ -51,6 +59,8 @@ func _ready() -> void:
 	# Keep controls attached until this input dispatch has finished.
 	controller.changed.connect(_refresh, CONNECT_DEFERRED)
 	controller.move_completed.connect(_move_feedback)
+	relax_controller.changed.connect(_refresh, CONNECT_DEFERRED)
+	relax_controller.move_completed.connect(_move_feedback)
 	resized.connect(_safe_margins)
 	get_window().size_changed.connect(_safe_margins)
 	get_tree().quit_on_go_back = false
@@ -113,16 +123,18 @@ func _refresh() -> void:
 	for child in _content.get_children():
 		_content.remove_child(child)
 		child.queue_free()
+	_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO if _active_controller().state() == State.HOME else ScrollContainer.SCROLL_MODE_DISABLED
+	_content.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	if _settings_open:
 		_show_settings()
 	else:
-		match controller.state():
+		match _active_controller().state():
 			State.HOME: _show_home()
 			State.PLAYING: _show_game()
 			State.PAUSED: _show_pause()
 			State.GAME_OVER: _show_game_over()
-	if not controller.save_message().is_empty():
-		_message_label = _label(controller.save_message(), 18, Color("ffd083"))
+	if not _active_controller().save_message().is_empty():
+		_message_label = _label(_active_controller().save_message(), 18, Color("ffd083"))
 		_message_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
 func _show_home() -> void:
@@ -142,31 +154,36 @@ func _show_home() -> void:
 	if controller.can_resume():
 		_button("Resume Game", func() -> void: controller.resume())
 	_button("Settings", func() -> void: _settings_open = true; _refresh.call_deferred())
-	_button("Relax Mode  ·  Coming Soon", func() -> void: pass).disabled = true
+	_button("Relax Mode", _open_relax)
+	if relax_controller.can_resume():
+		_button("Resume Relax", func() -> void: _relax_mode = true; relax_controller.resume())
 	_button("Daily Challenge  ·  Coming Soon", func() -> void: pass).disabled = true
 	_space()
 	_label("No timer. Make room for your next move.", 19, Color("8ba4b8"))
 
 func _show_game() -> void:
-	var session := controller.session()
-	_label("CLASSIC", 20, Color("71e2bf"))
+	var session := _active_controller().session()
+	_label("RELAX" if _relax_mode else "CLASSIC", 20, Color("71e2bf"))
 	_label("%s" % session.score(), 48)
-	_label("BEST  %s  ·  COMBO  %s" % [controller.best_score(), session.combo()], 20, Color("ffd083"))
+	if _relax_mode:
+		_label("No timer. Take your time.", 20, Color("a2b8c9"))
+	else:
+		_label("BEST  %s  ·  COMBO  %s" % [controller.best_score(), session.combo()], 20, Color("ffd083"))
 	surface = PuzzleSurface.new()
 	_content.add_child(surface)
 	surface.show_session(session, true)
-	surface.placement_requested.connect(func(slot: int, origin: Vector2i) -> void: controller.place(slot, origin))
-	_button("Pause", func() -> void: controller.pause())
+	surface.placement_requested.connect(func(slot: int, origin: Vector2i) -> void: _active_controller().place(slot, origin))
+	_button("Pause", func() -> void: _active_controller().pause())
 
 func _show_pause() -> void:
 	_space()
 	_label("Take a breath", 44)
 	_label("Your board can wait.", 24, Color("a2b8c9"))
-	_label("SCORE  " + str(controller.session().score()), 30, Color("ffd083"))
+	_label("SCORE  " + str(_active_controller().session().score()), 30, Color("ffd083"))
 	_space()
-	_button("Resume", func() -> void: controller.resume(), true)
+	_button("Resume", func() -> void: _active_controller().resume(), true)
 	_button("Restart", _confirm_restart)
-	_button("Home", func() -> void: controller.home())
+	_button("Home", _go_home)
 	_space()
 
 func _show_game_over() -> void:
@@ -174,12 +191,13 @@ func _show_game_over() -> void:
 	_label("No moves left", 44)
 	_label("A new board is a new beginning.", 23, Color("a2b8c9"))
 	_label("FINAL SCORE", 20, Color("71e2bf"))
-	var final_text := str(controller.session().score())
+	var final_text := str(_active_controller().session().score())
 	_label(final_text, 44 if final_text.length() > 12 else 64)
-	_label("BEST  " + str(controller.best_score()), 24, Color("ffd083"))
+	if not _relax_mode:
+		_label("BEST  " + str(controller.best_score()), 24, Color("ffd083"))
 	_space()
-	_button("Play Again", _start_new, true)
-	_button("Home", func() -> void: controller.home())
+	_button("Restart" if _relax_mode else "Play Again", _start_new, true)
+	_button("Home", _go_home)
 	_space()
 
 func _show_settings() -> void:
@@ -193,17 +211,34 @@ func _show_settings() -> void:
 	_button("Back", func() -> void: _settings_open = false; _refresh.call_deferred(), true)
 	_space()
 
+func _active_controller() -> ClassicController:
+	return relax_controller if _relax_mode else controller
+
+func _open_relax() -> void:
+	_relax_mode = true
+	if relax_controller.can_resume():
+		relax_controller.resume()
+	else:
+		_start_new()
+
+func _go_home() -> void:
+	_active_controller().home()
+	_relax_mode = false
+	_refresh.call_deferred()
+
 func _request_new() -> void:
+	_relax_mode = false
 	if controller.can_resume():
 		_confirm_restart()
 	else:
 		_start_new()
 
 func _confirm_restart() -> void:
+	_dialog.dialog_text = "Your current Relax board will be replaced." if _relax_mode else "Your current board will be replaced.\nYour best score will be kept."
 	_dialog.popup_centered(Vector2i(440, 220))
 
 func _start_new() -> void:
-	controller.new_game(int(Time.get_unix_time_from_system()) ^ Time.get_ticks_usec())
+	_active_controller().new_game(int(Time.get_unix_time_from_system()) ^ Time.get_ticks_usec())
 
 func _move_feedback(_result: Dictionary) -> void:
 	var preferences := controller.preferences()
@@ -229,8 +264,8 @@ func _make_sound() -> AudioStreamWAV:
 func interrupt() -> void:
 	if surface != null:
 		surface.cancel_drag()
-	if controller != null and controller.state() == State.PLAYING:
-		controller.pause()
+	if controller != null and _active_controller().state() == State.PLAYING:
+		_active_controller().pause()
 
 func _exit_tree() -> void:
 	if _sound_player != null:
@@ -248,9 +283,9 @@ func _notification(what: int) -> void:
 		elif _settings_open:
 			_settings_open = false
 			_refresh()
-		elif controller.state() == State.PLAYING:
+		elif _active_controller().state() == State.PLAYING:
 			interrupt()
-		elif controller.state() in [State.PAUSED, State.GAME_OVER]:
-			controller.home()
-		elif controller.state() == State.HOME:
+		elif _active_controller().state() in [State.PAUSED, State.GAME_OVER]:
+			_go_home()
+		elif _active_controller().state() == State.HOME:
 			get_tree().quit()

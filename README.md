@@ -76,3 +76,10 @@ Optional cloud CPU benchmarks:
 godot --headless --path . --script tests/simulation/benchmark_board.gd
 godot --headless --path . --script tests/simulation/benchmark_fair_play.gd
 ```
+
+## Relax Mode — Phase 3 Gate B
+
+Relax uses the shared board with a ten-shape catalog and cells + 10×lines scoring.
+See [rules](docs/gameplay/relax-mode.md) and [local validation](docs/testing/phase-3-gate-b-verification.md).
+Run `bash tools/test_relax.sh` after loading the pinned toolchain; Classic regression
+remains `bash tools/test.sh` and `bash tools/test_extended.sh`.
