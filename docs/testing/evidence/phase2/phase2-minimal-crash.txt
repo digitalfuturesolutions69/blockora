@@ -1,0 +1,24 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+WARNING: The local function parameter "shape_id" is shadowing an already-declared function at line 43 in the current class.
+     at: GDScript::reload (res://scripts/domain/game_piece.gd:9)
+WARNING: The local function parameter "render_key" is shadowing an already-declared function at line 55 in the current class.
+     at: GDScript::reload (res://scripts/domain/game_piece.gd:9)
+WARNING: The local function parameter "position" is shadowing an already-declared property in the base class "Control".
+     at: GDScript::reload (res://scripts/presentation/puzzle_surface.gd:80)
+WARNING: The local function parameter "position" is shadowing an already-declared property in the base class "Control".
+     at: GDScript::reload (res://scripts/presentation/puzzle_surface.gd:103)
+WARNING: The local function parameter "position" is shadowing an already-declared property in the base class "Control".
+     at: GDScript::reload (res://scripts/presentation/puzzle_surface.gd:116)
+WARNING: The local function parameter "position" is shadowing an already-declared property in the base class "Control".
+     at: GDScript::reload (res://scripts/presentation/puzzle_surface.gd:124)
+FREED_SURFACE_VALID=false
+SCRIPT ERROR: Attempt to call function 'is_dragging' in base 'previously freed' on a null instance.
+          at: _run (/tmp/blockora-gate-c-recovery/minimal_freed_surface.gd:14)
+          GDScript backtrace (most recent call first):
+              [0] _run (/tmp/blockora-gate-c-recovery/minimal_freed_surface.gd:14)
+
+Debugger Break, Reason: 'Attempt to call function 'is_dragging' in base 'previously freed' on a null instance.'
+*Frame 0 - /tmp/blockora-gate-c-recovery/minimal_freed_surface.gd:14 in function '_run'
+Enter "help" for assistance.
+debug>

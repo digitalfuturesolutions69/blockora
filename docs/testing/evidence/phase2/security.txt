@@ -1,0 +1,4 @@
+PASS: 173 Git candidate files scanned; no common credentials or signing files detected (limited pattern scan)
+PASS: tracked/new artifact audit; 173 files, no binary/key containers
+PASS: git diff --check
+No staged files; HEAD unchanged; changes uncommitted

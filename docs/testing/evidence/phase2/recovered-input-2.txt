@@ -1,0 +1,4 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+INPUT OVERLAP EVIDENCE: {"after":{"board":[2,3,0,0,0,0,0,0],"combo":0,"rng":{"algorithm":"park_miller_16807_v1","policy":"immediate_fit_v1","state":1054476435},"ruleset_version":"classic_v1","schema_version":1,"score":"3","session_status":"active","tray":["","line5_h","domino_v"]},"preview":{"before":{"board":[2,3,0,0,0,0,0,0],"combo":0,"rng":{"algorithm":"park_miller_16807_v1","policy":"immediate_fit_v1","state":1054476435},"ruleset_version":"classic_v1","schema_version":1,"score":"3","session_status":"active","tray":["","line5_h","domino_v"]},"occupied_piece_cells":["(0, 0)","(1, 0)","(2, 0)","(3, 0)","(4, 0)"],"origin":"(0, 0)","pointer":"(245.2, 362.8)","valid":false},"surface_valid":true}
+INPUT RESULT: 14 cases, 89 assertions, 0 failures (injected Godot events; not device acceptance)

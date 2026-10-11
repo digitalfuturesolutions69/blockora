@@ -1,0 +1,14 @@
+[
+  {
+    "script": "tests/smoke/run_tests.gd",
+    "exit_code": 0
+  },
+  {
+    "script": "tests/unit/run_gameplay_tests.gd",
+    "exit_code": 0
+  },
+  {
+    "script": "tests/unit/run_fair_play_tests.gd",
+    "exit_code": 0
+  }
+]

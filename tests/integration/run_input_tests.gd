@@ -128,8 +128,14 @@ func _run() -> void:
 	check(not app._dialog.visible, "single tap does not reopen restart dialog")
 	check(observer.emulated_buttons >= 10, "Godot synthesized mouse events from real touch injection")
 	app.controller.move_completed.connect(func(_result: Dictionary) -> void: moves[0] += 1)
-	app.controller.new_game(42)
+	var playing_snapshot := app.controller.session().snapshot()
+	check(not app.controller.new_game(42) and app.controller.session().snapshot() == playing_snapshot, "new_game while Playing is rejected atomically")
+	check(app.controller.pause(), "deterministic fixture enters an allowed restart state")
+	check(app.controller.new_game(42), "deterministic fixture seed accepted")
 	await settle()
+	var fixture_snapshot := app.controller.session().snapshot()
+	check(fixture_snapshot.board == [0,0,0,0,0,0,0,0] and fixture_snapshot.score == "0", "fixture starts on a known empty board")
+	check(fixture_snapshot.tray == ["corner_se", "line5_h", "domino_v"] and fixture_snapshot.rng.state == 1054476435, "seed 42 known tray and next RNG state")
 	cases += 1
 	check(app.surface != null and app.surface.board_rect().size.x > 0, "real board and tray loaded")
 	var surface := app.surface
@@ -154,10 +160,18 @@ func _run() -> void:
 	target = global_point(surface.pointer_for_origin(1, Vector2i.ZERO))
 	_move(target)
 	await settle()
+	var preview_evidence := {"before":before, "pointer":str(target), "origin":str(surface.drag_origin()), "valid":surface.preview_valid(), "incoming_piece_cells":app.controller.session().piece_at(1).cells()}
 	check(not surface.preview_valid(), "overlap invalid preview")
 	_mouse(target, false)
 	await settle()
+	print("INPUT OVERLAP EVIDENCE: ", JSON.stringify({"preview":preview_evidence,"after":app.controller.session().snapshot(),"surface_valid":is_instance_valid(surface)}))
 	check(app.controller.session().snapshot() == before, "invalid release changes nothing")
+	# Never call script methods through a freed Control after a failed invariant.
+	# Godot 4.6.3 optimized scripts can crash rather than report a script error.
+	if not is_instance_valid(surface):
+		check(false, "invalid release unexpectedly destroyed the input surface")
+		quit(1)
+		return
 	check(not surface.is_dragging(), "invalid release returns piece to tray")
 	cases += 1
 	_mouse(global_point(surface.tray_rect(1).get_center()), true)
@@ -209,6 +223,10 @@ func _run() -> void:
 	_touch(invalid_target, 0, false)
 	await settle()
 	check(app.controller.session().snapshot() == before and moves[0] == previous_moves + 1, "invalid touch release changes no state or score")
+	if not is_instance_valid(surface):
+		check(false, "invalid touch release unexpectedly destroyed the input surface")
+		quit(1)
+		return
 	var synthetic_press := InputEventMouseButton.new()
 	synthetic_press.device = PuzzleSurface.EMULATED_MOUSE_DEVICE
 	synthetic_press.button_index = MOUSE_BUTTON_LEFT

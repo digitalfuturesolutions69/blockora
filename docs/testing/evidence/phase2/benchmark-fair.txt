@@ -1,0 +1,3 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+FAIR BENCHMARK: {"bounded_search_nodes":256,"bounded_search_runs":100,"environment":"cloud CPU, not Android frame-time acceptance","failures":0,"generation_us":{"max":5816,"mean":524.5999,"min":3,"p50":706,"p95":885},"generations":10000,"repairs":4355,"search_max_us":16350}

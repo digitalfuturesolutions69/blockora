@@ -5,6 +5,10 @@ extends RefCounted
 func next_tray() -> Array[String]:
 	return []
 
+# Legacy/injected providers retain their behavior; fair providers use the board.
+func next_tray_for_board(_board: PuzzleBoard) -> Array[String]:
+	return next_tray()
+
 func snapshot() -> Dictionary:
 	return {}
 

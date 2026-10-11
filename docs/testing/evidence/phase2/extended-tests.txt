@@ -1,0 +1,30 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+SIMULATION progress: 1000/10000 sessions, 26483 moves
+SIMULATION progress: 2000/10000 sessions, 52608 moves
+SIMULATION progress: 3000/10000 sessions, 78985 moves
+SIMULATION progress: 4000/10000 sessions, 105072 moves
+SIMULATION progress: 5000/10000 sessions, 131080 moves
+SIMULATION progress: 6000/10000 sessions, 156389 moves
+SIMULATION progress: 7000/10000 sessions, 182694 moves
+SIMULATION progress: 8000/10000 sessions, 208542 moves
+SIMULATION progress: 9000/10000 sessions, 234123 moves
+SIMULATION progress: 10000/10000 sessions, 260575 moves
+SIMULATION RESULT: 10000 completed sessions, 260575 moves, 2357854 assertions, 0 failures, 24255 ms, longest=106 moves
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+FAIR SIMULATION progress: 1000/10000
+FAIR SIMULATION progress: 2000/10000
+FAIR SIMULATION progress: 3000/10000
+FAIR SIMULATION progress: 4000/10000
+FAIR SIMULATION progress: 5000/10000
+FAIR SIMULATION progress: 6000/10000
+FAIR SIMULATION progress: 7000/10000
+FAIR SIMULATION progress: 8000/10000
+FAIR SIMULATION progress: 9000/10000
+FAIR SIMULATION progress: 10000/10000
+FAIR SIMULATION RESULT: {"assertions":1972676,"completed_sessions":10000,"contract_passes":91900,"contract_percent":100.0,"contract_violations":0,"elapsed_ms":87498,"eligible_trays":91900,"failures":0,"fresh_trays":91900,"game_over_causes":{"remaining_tray_blocked":10000},"generator_repairs":627,"legal_placements":{"max":192,"mean":56.8665723612622,"min":1,"p50":48,"p95":137},"max_generation_us":3528,"moves":262968,"player":"first_legal_slot_y_x","policy":"immediate_fit_v1","replay_success":10000,"requested_sessions":10000,"sampler_fallbacks":0,"scores":{"max":1169,"mean":199.0004,"min":27,"p50":175,"p95":423},"session_moves":{"max":106,"mean":26.2968,"min":8,"p50":23,"p95":47},"shape_counts":{"corner_ne":11528,"corner_nw":11500,"corner_se":11567,"corner_sw":11441,"domino_h":11537,"domino_v":11514,"l4_bottom":11563,"l4_left":11441,"l4_right":11443,"l4_top":11436,"line3_h":11577,"line3_v":11500,"line4_h":11503,"line4_v":11540,"line5_h":11455,"line5_v":11493,"s4":11493,"single":11466,"square2":11500,"t_down":11431,"t_left":11426,"t_right":11420,"t_up":11499,"z4":11427}}
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+FAIR SIMULATION progress: 1000/1000
+FAIR SIMULATION RESULT: {"assertions":113678,"completed_sessions":1000,"contract_passes":5399,"contract_percent":100.0,"contract_violations":0,"elapsed_ms":6057,"eligible_trays":5399,"failures":0,"fresh_trays":5399,"game_over_causes":{"remaining_tray_blocked":1000},"generator_repairs":48,"legal_placements":{"max":192,"mean":56.2530098166327,"min":1,"p50":41,"p95":140},"max_generation_us":1113,"moves":14897,"player":"random_legal","policy":"immediate_fit_v1","replay_success":1000,"requested_sessions":1000,"sampler_fallbacks":0,"scores":{"max":472,"mean":76.472,"min":20,"p50":63,"p95":178},"session_moves":{"max":50,"mean":14.897,"min":5,"p50":14,"p95":25},"shape_counts":{"corner_ne":665,"corner_nw":681,"corner_se":687,"corner_sw":677,"domino_h":699,"domino_v":672,"l4_bottom":684,"l4_left":666,"l4_right":664,"l4_top":671,"line3_h":689,"line3_v":669,"line4_h":675,"line4_v":661,"line5_h":682,"line5_v":675,"s4":661,"single":675,"square2":692,"t_down":687,"t_left":674,"t_right":677,"t_up":658,"z4":656}}

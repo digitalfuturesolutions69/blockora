@@ -61,3 +61,18 @@ godot --display-server x11 --audio-driver Dummy --rendering-method gl_compatibil
 ```
 
 Original UI captures are ignored under builds/screenshots. Dummy audio is not an audible sound test.
+
+Phase 2 Fair Play local validation adds an immediate-fit generator, bounded board
+analyzer, legacy save compatibility, and deterministic input/lifecycle fixtures.
+See [policy](docs/gameplay/fair-play-policy.md) and
+[Gate C recovery](docs/testing/phase-2-crash-recovery.md) and
+[Phase 2 verification](docs/testing/phase-2-verification.md).
+`tools/test.sh` includes Fair Play/input/lifecycle units and both simulation
+smokes; `tools/test_extended.sh` runs 10,000 legacy sessions, 10,000 Fair Play
+sessions with replay/save-resume, and 1,000 randomized legal-player sessions.
+Optional cloud CPU benchmarks:
+
+```bash
+godot --headless --path . --script tests/simulation/benchmark_board.gd
+godot --headless --path . --script tests/simulation/benchmark_fair_play.gd
+```

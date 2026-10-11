@@ -1,0 +1,14 @@
+scripts/application/classic_controller.gd
+scripts/domain/classic_session.gd
+scripts/domain/piece_provider.gd
+tools/test.sh
+tools/test_extended.sh
+docs/gameplay/fair-play-policy.md
+scripts/domain/board_analyzer.gd
+scripts/domain/board_analyzer.gd.uid
+scripts/domain/fair_piece_provider.gd
+scripts/domain/fair_piece_provider.gd.uid
+tests/simulation/run_fairness.gd
+tests/simulation/run_fairness.gd.uid
+tests/unit/run_fair_play_tests.gd
+tests/unit/run_fair_play_tests.gd.uid

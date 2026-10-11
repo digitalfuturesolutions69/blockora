@@ -13,9 +13,9 @@ var _finished := false
 
 func _init(provider: PieceProvider = null, library: PieceLibrary = null, scoring: ScoreRules = null) -> void:
 	_library = library if library != null else PieceLibrary.new()
-	_provider = provider if provider != null else SeededPieceProvider.new()
+	_provider = provider if provider != null else FairPieceProvider.new()
 	_scoring = scoring if scoring != null else ScoreRules.new()
-	_tray = _provider.next_tray()
+	_tray = _provider.next_tray_for_board(_board)
 	if not _valid_tray(_tray):
 		_tray = ["", "", ""]
 		_finished = true
@@ -66,7 +66,7 @@ func place(slot: int, origin: Vector2i) -> Dictionary:
 	candidate_tray[slot] = ""
 	if candidate_tray == ["", "", ""]:
 		var previous_rng := _provider.snapshot()
-		candidate_tray = _provider.next_tray()
+		candidate_tray = _provider.next_tray_for_board(candidate_board)
 		if not _valid_tray(candidate_tray):
 			_provider.restore(previous_rng)
 			return {"status": "provider_error"}
@@ -114,7 +114,13 @@ static func restore(value: Dictionary) -> ClassicSession:
 	for id in tray_value:
 		if not id is String or (not id.is_empty() and library.get_piece(id) == null):
 			return null
-	var provider := SeededPieceProvider.new()
+	var provider: PieceProvider
+	if value.rng.has("policy"):
+		if value.rng.policy != FairPieceProvider.POLICY:
+			return null
+		provider = FairPieceProvider.new()
+	else:
+		provider = SeededPieceProvider.new()
 	if not provider.restore(value.rng):
 		return null
 	var session := ClassicSession.new(provider, library)

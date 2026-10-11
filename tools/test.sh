@@ -18,6 +18,9 @@ while IFS= read -r file; do
  done < <(rg --files scripts scenes tests addons -g '*.gd' | sort)
 run_godot --script tests/smoke/run_tests.gd
 run_godot --script tests/unit/run_gameplay_tests.gd
+run_godot --script tests/unit/run_fair_play_tests.gd
 run_godot --script tests/integration/run_input_tests.gd
+run_godot --script tests/integration/run_input_lifecycle_tests.gd
 run_godot --script tests/simulation/run_simulations.gd -- --sessions=100
+run_godot --script tests/simulation/run_fairness.gd -- --sessions=100
 run_godot --quit-after 2

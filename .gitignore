@@ -16,3 +16,9 @@ local.properties
 
 __pycache__/
 *.pyc
+
+# Generated Godot imports of Phase 2 CSV evidence only.
+/docs/testing/evidence/phase2/shape-distribution.csv.import
+/docs/testing/evidence/phase2/shape-distribution.delta.translation
+/docs/testing/evidence/phase2/shape-distribution.fair.translation
+/docs/testing/evidence/phase2/shape-distribution.legacy.translation

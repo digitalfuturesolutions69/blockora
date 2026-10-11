@@ -1,0 +1,53 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+ABOUT_TO_ACCESS_SURFACE valid=true
+OVERLAP_BEFORE={"board":[1,0,0,0,0,0,0,0],"combo":0,"rng":{"algorithm":"park_miller_16807_v1","policy":"immediate_fit_v1","state":1073713583},"ruleset_version":"classic_v1","schema_version":1,"score":"1","session_status":"active","tray":["","t_up","s4"]} POINTER=(163.2, 444.8) ORIGIN=(0, 0) VALID=true
+ERROR: FAIL [input integration]: overlap invalid preview
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] check (/tmp/blockora-gate-c-recovery/repro_original_input.gd:60)
+       [1] _run (/tmp/blockora-gate-c-recovery/repro_original_input.gd:160)
+       [2] settle (/tmp/blockora-gate-c-recovery/repro_original_input.gd:64)
+OVERLAP_AFTER={"board":[3,7,0,0,0,0,0,0],"combo":0,"rng":{"algorithm":"park_miller_16807_v1","policy":"immediate_fit_v1","state":1073713583},"ruleset_version":"classic_v1","schema_version":1,"score":"5","session_status":"active","tray":["","","s4"]} OLD_SURFACE_VALID=false
+ERROR: FAIL [input integration]: invalid release changes nothing
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] check (/tmp/blockora-gate-c-recovery/repro_original_input.gd:60)
+       [1] _run (/tmp/blockora-gate-c-recovery/repro_original_input.gd:164)
+       [2] settle (/tmp/blockora-gate-c-recovery/repro_original_input.gd:64)
+
+================================================================
+handle_crash: Program crashed with signal 11
+Engine version: Godot Engine v4.6.3.stable.official (7d41c59c457bd5a245092b4e7eb2d833e3b3f8c3)
+Dumping the backtrace. Please include this when reporting the bug on: https://github.com/godotengine/godot/issues
+[1] /lib/x86_64-linux-gnu/libc.so.6(+0x3fd70) [0x7fc7bc922d70] (??:0)
+[2] godot() [0x4590707] (??:0)
+[3] godot() [0xae98b7] (??:0)
+[4] godot() [0xa1b704] (??:0)
+[5] godot() [0xa1c822] (??:0)
+[6] godot() [0xa33523] (??:0)
+[7] godot() [0x472b29b] (??:0)
+[8] godot() [0x457286d] (??:0)
+[9] godot() [0x4572bf4] (??:0)
+[10] godot() [0x486acf4] (??:0)
+[11] godot() [0xaea4ba] (??:0)
+[12] godot() [0xa1b704] (??:0)
+[13] godot() [0xa1c822] (??:0)
+[14] godot() [0xa33523] (??:0)
+[15] godot() [0x472b29b] (??:0)
+[16] godot() [0x457286d] (??:0)
+[17] godot() [0x4572bf4] (??:0)
+[18] godot() [0x486acf4] (??:0)
+[19] godot() [0x2914104] (??:0)
+[20] godot() [0x565dd1] (??:0)
+[21] godot() [0x4321ef] (??:0)
+[22] /lib/x86_64-linux-gnu/libc.so.6(+0x29ca8) [0x7fc7bc90cca8] (??:0)
+[23] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x85) [0x7fc7bc90cd65] (??:0)
+[24] godot() [0x48b13a] (??:0)
+-- END OF C++ BACKTRACE --
+================================================================
+GDScript backtrace (most recent call first):
+    [0] _run (/tmp/blockora-gate-c-recovery/repro_original_input.gd:165)
+    [1] settle (/tmp/blockora-gate-c-recovery/repro_original_input.gd:64)
+-- END OF GDSCRIPT BACKTRACE --
+================================================================

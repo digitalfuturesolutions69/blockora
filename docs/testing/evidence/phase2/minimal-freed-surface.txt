@@ -1,0 +1,15 @@
+extends SceneTree
+var surface: PuzzleSurface
+func _initialize() -> void:
+	_run.call_deferred()
+func _run() -> void:
+	surface = PuzzleSurface.new()
+	root.add_child(surface)
+	await process_frame
+	surface.queue_free()
+	await process_frame
+	await process_frame
+	print("FREED_SURFACE_VALID=", is_instance_valid(surface))
+	# Diagnostic only: reproduces the unsafe call in the old regression fixture.
+	print(surface.is_dragging())
+	quit()

@@ -1,0 +1,8 @@
+BUILD SUCCESSFUL in 7s
+cannot connect to daemon at tcp:5037: Connection refused
+cannot connect to daemon at tcp:5037: Connection refused
+builds/blockora-debug.apk: size=84943828, sha256=774ba3ecad320c96b6066edbc280bb7bf2e31182d9b28406fe3e93e15ba0fd0d
+builds/blockora-test.aab: size=32491000, sha256=2067953dbfead5b0ba8dae730a879a5d5aeccde0d40f3ae466de62e57d8ffe30
+PASS: APK package, SDKs, permission allowlist, debug signature
+PASS: bundletool validation, AAB SDKs, portrait, permissions, v2 plugin and test AdMob ID
+Permissions: android.permission.ACCESS_NETWORK_STATE, android.permission.INTERNET, android.permission.VIBRATE, android.permission.WAKE_LOCK, com.android.vending.BILLING, com.digitalfuturesolutions.blockora.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION

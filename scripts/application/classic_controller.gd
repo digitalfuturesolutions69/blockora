@@ -61,7 +61,7 @@ func _load() -> void:
 func new_game(seed_value: int) -> bool:
 	if not state() in [SessionStateMachine.State.HOME, SessionStateMachine.State.PAUSED, SessionStateMachine.State.GAME_OVER]:
 		return false
-	_session = ClassicSession.new(SeededPieceProvider.new(seed_value))
+	_session = ClassicSession.new(FairPieceProvider.new(seed_value))
 	_machine.transition(SessionStateMachine.State.PLAYING)
 	_persist()
 	changed.emit()

@@ -1,0 +1,17 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+ABOUT_TO_ACCESS_SURFACE valid=true
+OVERLAP_BEFORE={"board":[1,0,0,0,0,0,0,0],"combo":0,"rng":{"algorithm":"park_miller_16807_v1","state":1073713583},"ruleset_version":"classic_v1","schema_version":1,"score":"1","session_status":"active","tray":["","t_up","s4"]} POINTER=(163.2, 444.8) ORIGIN=(0, 0) VALID=true
+ERROR: FAIL [input integration]: overlap invalid preview
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] check (/tmp/blockora-gate-c-recovery/repro_original_input.gd:60)
+       [1] _run (/tmp/blockora-gate-c-recovery/repro_original_input.gd:160)
+       [2] settle (/tmp/blockora-gate-c-recovery/repro_original_input.gd:64)
+OVERLAP_AFTER={"board":[3,7,0,0,0,0,0,0],"combo":0,"rng":{"algorithm":"park_miller_16807_v1","state":1073713583},"ruleset_version":"classic_v1","schema_version":1,"score":"5","session_status":"active","tray":["","","s4"]} OLD_SURFACE_VALID=false
+ERROR: FAIL [input integration]: invalid release changes nothing
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] check (/tmp/blockora-gate-c-recovery/repro_original_input.gd:60)
+       [1] _run (/tmp/blockora-gate-c-recovery/repro_original_input.gd:164)
+       [2] settle (/tmp/blockora-gate-c-recovery/repro_original_input.gd:64)
