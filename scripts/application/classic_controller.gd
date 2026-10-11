@@ -2,6 +2,7 @@ class_name ClassicController
 extends RefCounted
 
 signal changed
+signal preferences_changed
 signal move_completed(result: Dictionary)
 
 const SAVE_KEY := "classic_session_v1"
@@ -12,6 +13,7 @@ var _machine := SessionStateMachine.new()
 var _session: ClassicSession
 var _best := 0
 var _sound := true
+var _sound_volume := 70
 var _vibration := true
 var _save_message := ""
 
@@ -30,7 +32,7 @@ func best_score() -> int:
 	return _best
 
 func preferences() -> Dictionary:
-	return {"sound": _sound, "vibration": _vibration}
+	return {"sound": _sound, "vibration": _vibration, "sound_volume": _sound_volume}
 
 func save_message() -> String:
 	return _save_message
@@ -47,6 +49,9 @@ func _load() -> void:
 		if settings.data.get("sound") is bool and settings.data.get("vibration") is bool:
 			_sound = settings.data.sound
 			_vibration = settings.data.vibration
+		var volume: Variant = settings.data.get("sound_volume", 70)
+		if (volume is int or volume is float) and is_finite(float(volume)) and volume >= 0 and volume <= 100 and int(volume) == volume:
+			_sound_volume = int(volume)
 	var saved := _storage.read_record(SAVE_KEY)
 	if saved.status == "ok":
 		_session = ClassicSession.restore(saved.data)
@@ -106,8 +111,18 @@ func set_preferences(sound_enabled: bool, vibration_enabled: bool) -> void:
 	_sound = sound_enabled
 	_vibration = vibration_enabled
 	_save_message = ""
-	_check_write(_storage.write_record(SETTINGS_KEY, {"schema_version": 1, "sound": _sound, "vibration": _vibration}))
+	_write_preferences()
 	changed.emit()
+
+func set_sound_volume(percent: int) -> void:
+	_sound_volume = clampi(percent, 0, 100)
+	_save_message = ""
+	_write_preferences()
+	# Do not rebuild the GUI while its slider owns the touch gesture.
+
+func _write_preferences() -> void:
+	_check_write(_storage.write_record(SETTINGS_KEY, {"schema_version": 1, "sound": _sound, "vibration": _vibration, "sound_volume": _sound_volume}))
+	preferences_changed.emit()
 
 func _write_best() -> void:
 	_check_write(_storage.write_record(BEST_KEY, {"schema_version": 1, "best": str(_best)}))

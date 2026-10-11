@@ -305,7 +305,7 @@ func _test_persistence() -> void:
 	begin("persistent settings")
 	reload.set_preferences(false, false)
 	var settings_reload := ClassicController.new(storage)
-	check(settings_reload.preferences() == {"sound": false, "vibration": false}, "settings saved")
+	check(settings_reload.preferences() == {"sound": false, "vibration": false, "sound_volume": 70}, "settings saved with default SFX volume")
 	begin("corrupt save recovery retains independent best")
 	storage.write_record(ClassicController.SAVE_KEY, {"schema_version": 99})
 	var recovered := ClassicController.new(storage)

@@ -336,5 +336,7 @@ func _run() -> void:
 	for key in [ClassicController.SAVE_KEY, ClassicController.BEST_KEY, ClassicController.SETTINGS_KEY]:
 		DirAccess.remove_absolute(path.path_join(key + ".json"))
 	DirAccess.remove_absolute(path)
+	# Allow the audio thread to release stopped playback before process teardown.
+	await create_timer(0.10).timeout
 	print("INPUT RESULT: %d cases, %d assertions, %d failures (injected Godot events; not device acceptance)" % [cases, checks, failures])
 	quit(0 if failures == 0 else 1)

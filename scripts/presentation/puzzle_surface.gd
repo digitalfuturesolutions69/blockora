@@ -2,6 +2,7 @@ class_name PuzzleSurface
 extends Control
 
 signal placement_requested(slot: int, origin: Vector2i)
+signal invalid_placement
 const COLORS := {"mint": Color("71e2bf"), "gold": Color("ffd083"), "blue": Color("82bbff"), "rose": Color("f39da9"), "lavender": Color("b5a0ef")}
 # Godot InputEvent::DEVICE_ID_EMULATION (core/input/input_event.h).
 # GUI buttons need these events; gameplay consumes the original touch only.
@@ -21,9 +22,10 @@ var _board_rect := Rect2()
 var _tray_rects: Array[Rect2] = []
 var _cell_size := 1.0
 var _background := StyleBoxFlat.new()
+var _minimum_touch_size := 96.0
 
 func _ready() -> void:
-	custom_minimum_size = Vector2(280, 420)
+	custom_minimum_size = Vector2(0, _minimum_touch_size + 216)
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	size_flags_vertical = Control.SIZE_EXPAND_FILL
 	clip_contents = true
@@ -45,15 +47,22 @@ func show_session(session: ClassicSession, active: bool) -> void:
 		_cells.append(piece.cells() if piece != null else [])
 	queue_redraw()
 
+func set_minimum_touch_size(value: float) -> void:
+	_minimum_touch_size = maxf(48.0, value)
+	custom_minimum_size = Vector2(0, _minimum_touch_size + 216)
+	if is_node_ready():
+		_layout()
+
 func _layout() -> void:
 	cancel_drag()
-	var side := maxf(8, minf(size.x - 16, size.y - 170))
+	var tray_height := maxf(110, _minimum_touch_size)
+	var side := maxf(8, minf(size.x - 16, size.y - tray_height - 56))
 	_board_rect = Rect2(Vector2((size.x - side) / 2, 8), Vector2.ONE * side)
 	_cell_size = side / 8.0
 	_tray_rects.clear()
 	var width := (size.x - 16) / 3.0
 	for slot in 3:
-		_tray_rects.append(Rect2(8 + slot * width, _board_rect.end.y + 40, width - 8, maxf(110, size.y - _board_rect.end.y - 48)))
+		_tray_rects.append(Rect2(8 + slot * width, _board_rect.end.y + 40, width - 8, maxf(tray_height, size.y - _board_rect.end.y - 48)))
 	queue_redraw()
 
 func board_rect() -> Rect2:
@@ -130,6 +139,8 @@ func _finish(position: Vector2, canceled: bool) -> void:
 	cancel_drag()
 	if commit:
 		placement_requested.emit(slot, origin)
+	elif not canceled and Rect2(Vector2.ZERO, size).has_point(position):
+		invalid_placement.emit()
 
 func pointer_for_origin(slot: int, origin: Vector2i) -> Vector2:
 	# Shared coordinate helper used by real event integration tests.
