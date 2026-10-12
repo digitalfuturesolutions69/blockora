@@ -23,6 +23,21 @@ var _tray_rects: Array[Rect2] = []
 var _cell_size := 1.0
 var _background := StyleBoxFlat.new()
 var _minimum_touch_size := 96.0
+var _accumulation_before := true
+var _owns_accumulation := false
+var _candidate_known := false
+var _render_pointer := Vector2.ZERO
+var _motion_pending := false
+var _diagnostics: DragDiagnostics
+var _diagnostics_enabled := false
+var _diagnostics_raw := false
+var _pickup_unit := 27.0
+var _ghost_unit := 27.0
+var _return_slot := -1
+var _return_elapsed := 0.0
+var _return_corner := Vector2.ZERO
+var _return_unit := 27.0
+const RETURN_SECONDS := 0.12
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(0, _minimum_touch_size + 216)
@@ -34,6 +49,9 @@ func _ready() -> void:
 	_background.set_corner_radius_all(14)
 	resized.connect(_layout)
 	_layout()
+	set_process(false)
+	_diagnostics_enabled = OS.is_debug_build() and FileAccess.file_exists("user://enable_drag_diagnostics")
+	_diagnostics_raw = _diagnostics_enabled and FileAccess.file_exists("user://enable_drag_raw_input")
 
 func show_session(session: ClassicSession, active: bool) -> void:
 	cancel_drag()
@@ -80,7 +98,17 @@ func drag_origin() -> Vector2i:
 func preview_valid() -> bool:
 	return _valid
 
-func cancel_drag() -> void:
+func cancel_drag(reason: String = "canceled") -> void:
+	if _diagnostics != null:
+		_diagnostics.finish(reason)
+		_diagnostics = null
+	_motion_pending = false
+	if _owns_accumulation:
+		Input.use_accumulated_input = _accumulation_before
+		_owns_accumulation = false
+	_return_slot = -1
+	set_process(false)
+	_candidate_known = false
 	_pointer_id = IDLE
 	_selected = -1
 	_valid = false
@@ -117,36 +145,110 @@ func _begin(position: Vector2, pointer_id: int) -> void:
 			_selected = slot
 			_pointer_id = pointer_id
 			var dimensions := _pieces[slot].dimensions()
-			_offset = Vector2(-dimensions.x * _cell_size / 2.0, -dimensions.y * _cell_size - _cell_size * 0.8)
-			_move(position)
+			_return_slot = -1
+			set_process(true)
+			_pickup_unit = _tray_unit(slot) * 1.04
+			var corner := _tray_corner(slot)
+			# Retain the actual grab location; lift only eight logical units at pickup.
+			var grab := (position - corner).clamp(Vector2.ZERO, Vector2(dimensions) * _tray_unit(slot))
+			_offset = -grab * 1.04 - Vector2(0, 8)
+			_ghost_unit = _pickup_unit
+			_candidate_known = false
+			_accumulation_before = Input.use_accumulated_input
+			# Keep normal engine accumulation. Raw dispatch is a debug-only A/B option.
+			_owns_accumulation = _diagnostics_raw
+			if _diagnostics_raw:
+				Input.use_accumulated_input = false
+			if _diagnostics_enabled:
+				_diagnostics = DragDiagnostics.new(Input.use_accumulated_input)
+			_apply_pointer(position)
 			get_viewport().set_input_as_handled()
 			return
 
 func _move(position: Vector2) -> void:
+	if _selected < 0:
+		return
 	_pointer = position
-	var relative := (position + _offset - _board_rect.position) / _cell_size
-	_origin = Vector2i(floori(relative.x), floori(relative.y))
-	_valid = _board.can_place(_pieces[_selected], _origin)
-	queue_redraw()
+	_motion_pending = true
+	if _diagnostics != null:
+		_diagnostics.event()
 	get_viewport().set_input_as_handled()
 
+func _apply_pointer(position: Vector2) -> void:
+	_pointer = position
+	_render_pointer = position
+	_motion_pending = false
+	var relative := (position + _offset - _board_rect.position) / _cell_size
+	var candidate := Vector2i(floori(relative.x), floori(relative.y))
+	if not _candidate_known or candidate != _origin:
+		_origin = candidate
+		_valid = _board.can_place(_pieces[_selected], _origin)
+		_candidate_known = true
+	queue_redraw()
+
 func _finish(position: Vector2, canceled: bool) -> void:
-	_move(position)
+	if _selected < 0:
+		return
+	get_viewport().set_input_as_handled()
+	# Release is authoritative immediately, even before the next visual frame.
+	_apply_pointer(position)
 	var slot := _selected
 	var origin := _origin
 	# A release outside this control is always cancellation, even if offset fits.
 	var commit := not canceled and _valid and Rect2(Vector2.ZERO, size).has_point(position)
-	cancel_drag()
+	var corner := _pointer + _offset
+	var unit := _ghost_unit
+	cancel_drag("accepted" if commit else ("canceled" if canceled else "invalid"))
 	if commit:
 		placement_requested.emit(slot, origin)
 	elif not canceled and Rect2(Vector2.ZERO, size).has_point(position):
+		# View-only return; pointer ownership and input mode are already released.
+		_return_slot = slot
+		_return_corner = corner
+		_return_unit = unit
+		_return_elapsed = 0.0
+		set_process(true)
 		invalid_placement.emit()
 
 func pointer_for_origin(slot: int, origin: Vector2i) -> Vector2:
 	# Shared coordinate helper used by real event integration tests.
 	var dimensions := _pieces[slot].dimensions()
-	var offset := Vector2(-dimensions.x * _cell_size / 2.0, -dimensions.y * _cell_size - _cell_size * 0.8)
+	var offset := _offset if _selected == slot else -Vector2(dimensions) * _tray_unit(slot) * 0.52 - Vector2(0, 8)
 	return _board_rect.position + Vector2(origin) * _cell_size + Vector2.ONE * (_cell_size * 0.1) - offset
+
+func _tray_unit(slot: int) -> float:
+	var rect := _tray_rects[slot]
+	var dimensions := _pieces[slot].dimensions()
+	return minf(27, minf((rect.size.x - 24) / dimensions.x, (rect.size.y - 24) / dimensions.y))
+
+func _tray_corner(slot: int) -> Vector2:
+	return _tray_rects[slot].get_center() - Vector2(_pieces[slot].dimensions()) * _tray_unit(slot) / 2.0
+
+func _process(delta: float) -> void:
+	if _selected >= 0:
+		if _motion_pending:
+			_apply_pointer(_pointer)
+		if _diagnostics != null:
+			_diagnostics.frame(_pointer, _render_pointer + _offset, _origin)
+		return
+	_return_elapsed += delta
+	if _return_elapsed >= RETURN_SECONDS:
+		_return_slot = -1
+		set_process(false)
+	queue_redraw()
+
+func _exit_tree() -> void:
+	cancel_drag()
+
+func _draw_ghost(slot: int, corner: Vector2, unit: float, alpha: float) -> void:
+	var color: Color = COLORS.get(_pieces[slot].render_key(), COLORS.mint)
+	color.a = alpha
+	var gap := minf(5, unit * 0.12)
+	for cell in _cells[slot]:
+		var rect := Rect2(corner + Vector2(cell) * unit + Vector2.ONE * gap, Vector2.ONE * (unit - gap * 2))
+		draw_rect(Rect2(rect.position + Vector2(2, 4), rect.size), Color(0, 0, 0, 0.20))
+		draw_rect(rect, color)
+		draw_rect(rect, Color("f4f7f9"), false, 1)
 
 func _draw() -> void:
 	draw_style_box(_background, _board_rect.grow(6))
@@ -172,7 +274,7 @@ func _draw() -> void:
 		var unit := minf(27, minf((rect.size.x - 24) / dimensions.x, (rect.size.y - 24) / dimensions.y))
 		var corner := rect.get_center() - Vector2(dimensions) * unit / 2.0
 		var color: Color = COLORS.get(piece.render_key(), COLORS.mint)
-		if slot == _selected:
+		if slot == _selected or slot == _return_slot:
 			color.a = 0.35
 		for cell in _cells[slot]:
 			draw_rect(Rect2(corner + Vector2(cell) * unit + Vector2.ONE * 2, Vector2.ONE * (unit - 4)), color)
@@ -193,13 +295,14 @@ func _draw() -> void:
 			else:
 				draw_line(center + Vector2(-6, -6), center + Vector2(6, 6), Color("0b1927"), 3)
 				draw_line(center + Vector2(6, -6), center + Vector2(-6, 6), Color("0b1927"), 3)
-		# Continuous pointer-following ghost; the board preview remains cell-snapped.
-		var ghost_color: Color = COLORS.get(_pieces[_selected].render_key(), COLORS.mint)
-		ghost_color.a = 0.38
-		for cell in _cells[_selected]:
-			var ghost := Rect2(_pointer + _offset + Vector2(cell) * _cell_size + Vector2.ONE * 5, Vector2.ONE * (_cell_size - 10))
-			draw_rect(ghost, ghost_color)
-			draw_rect(ghost, Color("f4f7f9"), false, 1)
+		# The continuous ghost shares its offset with candidate mapping.
+		if _diagnostics != null:
+			_diagnostics.draw(_render_pointer + _offset)
+		_draw_ghost(_selected, _render_pointer + _offset, _ghost_unit, 0.80)
+	if _return_slot >= 0:
+		var progress := clampf(_return_elapsed / RETURN_SECONDS, 0.0, 1.0)
+		var eased := 1.0 - pow(1.0 - progress, 3)
+		_draw_ghost(_return_slot, _return_corner.lerp(_tray_corner(_return_slot), eased), lerpf(_return_unit, _tray_unit(_return_slot), eased), 0.65)
 	var font := ThemeDB.fallback_font
 	var font_size := 19
 	var text_width := font.get_string_size(hint, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
